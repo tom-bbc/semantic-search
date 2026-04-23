@@ -1,0 +1,44 @@
+services:
+  #  ChromaDB server
+  # -----------------------------------------------------------------------
+  server:
+    image: chromadb/chroma
+    environment:
+      - CHROMA_OPEN_TELEMETRY__ENDPOINT=http://otel-collector:4317/
+      - CHROMA_OPEN_TELEMETRY__SERVICE_NAME=chroma
+    volumes:
+      - ./chroma_data:/data
+    ports:
+      - "127.0.0.1:3030:8000"
+    networks:
+      - chroma_network
+    depends_on:
+      - otel-collector
+      - zipkin
+
+  # OpenTelemetry Collector
+  # -----------------------------------------------------------------------
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.111.0
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    volumes:
+      - ${PWD}/otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    networks:
+      - chroma_network
+
+  # Zipkin server for visualising OpenTelementry data
+  # -----------------------------------------------------------------------
+  zipkin:
+    image: openzipkin/zipkin
+    ports:
+      - "9411:9411"
+    networks:
+      - chroma_network
+    depends_on:
+      - otel-collector
+
+networks:
+  chroma_network:
+
+volumes:
+  chroma_data:

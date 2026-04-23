@@ -1,0 +1,5 @@
+chromadb
+polars
+pdfplumber
+requests
+numpy
