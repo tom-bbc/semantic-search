@@ -3,3 +3,4 @@ polars
 pdfplumber
 requests
 numpy
+huggingface-hub
